@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
-
+import { insertData } from "../config/stream.js";
 //signup
 export const signup = async (req, res) => {
   const { fullname, email, password } = req.body;
@@ -41,6 +41,17 @@ export const signup = async (req, res) => {
       fullname,
       randomAvatar,
     });
+
+    try {
+      await insertData({
+        id: newUser._id.toString(),
+        name: newUser.fullname,
+        image: newUser.profilepic || "",
+      });
+      console.log("stream user created");
+    } catch (error) {
+      console.log("stram User creating error", error);
+    }
 
     const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
