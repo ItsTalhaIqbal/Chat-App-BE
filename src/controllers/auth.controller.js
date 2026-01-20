@@ -114,3 +114,59 @@ export const logout = (req, res) => {
   res.clearCookie("jwt");
   res.status(200).json({ message: "Logout Successful" });
 };
+
+//onboard
+export const onBoard = async (req, res) => {
+  const userId = req.user._id;
+
+  const { fullname, bio, nativeLanguage, learningLanguage, location } =
+    req.body;
+  try {
+    if (
+      !fullname ||
+      !bio ||
+      !nativeLanguage ||
+      !learningLanguage ||
+      !location
+    ) {
+      return res.status(400).json({
+        message: "All fields are required",
+        missingFields: [
+          !fullname && "fullanme",
+          !bio && "bio",
+          !nativeLanguage && "nativeLanguage",
+          !learningLanguage && "learningLanguage",
+          !location && "location",
+        ].filter(Boolean),
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...req.body,
+        isOnboarded: true,
+      },
+      { new: true },
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    try {
+      await insertData({
+        id: userId.toString(),
+        fullname,
+        image: updatedUser.profilepic || "",
+      });
+      console.log("stream user updated");
+    } catch (error) {
+      console.log("stram User updating error", error);
+    }
+
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (error) {
+    console.log("onboarding error ", error);
+    res.status(400).json({ message: "Internal server error" });
+  }
+};

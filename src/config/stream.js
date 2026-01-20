@@ -1,4 +1,4 @@
-import { StramChat } from "stream-chat";
+import { StreamChat } from "stream-chat";
 
 import "dotenv/config";
 
@@ -9,7 +9,7 @@ if (!apiKey || !apiSecret) {
   console.error("Stream API Key or Secret is missing ");
 }
 
-const streamClient = StramChat.getInstance(apiKey, apiSecret);
+const streamClient = StreamChat.getInstance(apiKey, apiSecret);
 
 export const insertData = async (userData) => {
   try {
